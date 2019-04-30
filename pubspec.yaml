@@ -1,0 +1,60 @@
+name: rit_app
+description: Made to make music life easier.
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
+
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # to save and read data
+  shared_preferences: ^0.5.1+2
+
+  # to play midi sounds for pitches
+  flutter_midi: ^0.2.0
+
+  # to change the time signature easily
+  numberpicker: ^1.0.0
+  
+
+  cupertino_icons: ^0.1.2
+
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+
+
+flutter:
+  uses-material-design: true
+
+  # for the midi player to use as base for pitches
+  assets:
+    - assets/sounds/Steinway+Grand+Piano+ER3A.sf2
+
+  fonts:
+    - family: whole
+      fonts:
+        - asset: assets/fonts/ic_whole.ttf
+    - family: half
+      fonts:
+        - asset: assets/fonts/ic_half.ttf
+    - family: quarter
+      fonts:
+        - asset: assets/fonts/ic_quarter.ttf
+    - family: eighth
+      fonts:
+        - asset: assets/fonts/ic_eighth.ttf
+    - family: sixteenth
+      fonts:
+        - asset: assets/fonts/ic_sixteenth.ttf
