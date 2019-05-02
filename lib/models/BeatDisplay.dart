@@ -13,7 +13,6 @@ class BeatDisplay extends StatefulWidget {
   // methods for pages to use
   void setIsOn(bool toSet) { state.setIsOn(toSet); }
   void setValue(int toSet) { state.setValue(toSet); }
-
 }
 
 class BeatDisplayState extends State<BeatDisplay> {
@@ -25,7 +24,6 @@ class BeatDisplayState extends State<BeatDisplay> {
 
   // constructor
   BeatDisplayState(this.value) { isOn = false; }
-
 
   // build
   @override
