@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:async'; import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:flutter_midi/flutter_midi.dart';
 
 import 'package:rit_app/models/Beat.dart';
 import 'package:rit_app/models/BeatDisplay.dart';
 import 'package:rit_app/models/Constants.dart';
-
 
 class MetronomePage extends StatefulWidget { @override MetronomePageState createState() => MetronomePageState(); }
 
@@ -23,8 +23,8 @@ class MetronomePageState extends State<MetronomePage> {
   int currentBeat;
   bool isMetronomePlaying;
 
-  List<BeatDisplay> beatDisplays;
-  Widget beatDisplayRow;
+  List<Beat> beats;
+  Widget beatDisplayList;
   Widget timeSignatureButton;
   Widget tempoButton;
   Widget playButton;
@@ -52,7 +52,7 @@ class MetronomePageState extends State<MetronomePage> {
                   children: <Widget>[
 
                     timeSignatureButton,
-                    beatDisplayRow
+                    Container(height: 100.0, child: beatDisplayList)
 
                   ].where(notNull).toList(),
                 ),
@@ -81,6 +81,9 @@ class MetronomePageState extends State<MetronomePage> {
     setTempoDuration();
 
     topTimeSignature = 4; bottomTimeSignature = 4;
+
+    // initialize beats
+    setBeats();
 
     // initialize metronome settings
     currentBeat = 0;
@@ -114,20 +117,35 @@ class MetronomePageState extends State<MetronomePage> {
       onPressed: () => setTimeSignature(),
     );
 
-    playButton = FlatButton(child: Icon(Icons.play_arrow), onPressed: () => toggleMetronome());
+    playButton = FlatButton(
+      child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+      onPressed: () => toggleMetronome(),
+    );
 
 
     // initialize beats and displays
-    beatDisplays = List<BeatDisplay>();
     initBeatDisplays();
 
-    print(beatDisplays.toString());
+    // initialize midi
+    loadSound('assets/sounds/Steinway+Grand+Piano+ER3A.sf2');
+
   }
 
   // setting functions
   void setTempoDuration() { tempoDuration = Duration(milliseconds: (Constants.MINUTE_IN_MILLISECONDS/tempo).floor()); }
   void setTempo() {}
   void setTimeSignature() {}
+  void setBeats() {
+    beats = List<Beat>();
+    for (int x = 0; x < topTimeSignature; x++) {
+      beats.add(Beat(bottomTimeSignature, -1));
+    }
+  }
+  void loadSound(String asset) async {
+    FlutterMidi.unmute();
+    ByteData byte = await rootBundle.load(asset);
+    FlutterMidi.prepare(sf2: byte);
+  }
 
   // widget functions
   void setMetronomeIcon() {
@@ -145,40 +163,48 @@ class MetronomePageState extends State<MetronomePage> {
     });
   }
   void initBeatDisplays() {
-    beatDisplays.clear();
-    for (int i = 0; i < topTimeSignature; i++) {
-      beatDisplays.add(BeatDisplay(bottomTimeSignature));
-    }
-    beatDisplayRow = Row(children: beatDisplays);
-  }
-  void setBeatDisplays() {
-    setState(() {
-      beatDisplays.clear();
-      for (int i = 0; i < topTimeSignature; i++) {
-        beatDisplays.add(BeatDisplay(bottomTimeSignature));
-      }
-      beatDisplayRow = Row(children: beatDisplays);
-    });
+    beatDisplayList = ListView.builder(
+      shrinkWrap: true,
+      scrollDirection: Axis.horizontal,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: beats.length,
+      itemBuilder: (context, index) {
+
+        return BeatDisplay(beats[index]);
+
+      },
+    );
   }
   void disableBeatDisplays() {
-    beatDisplays.forEach((display) => display.setIsOn(false));
+    print('disable');
+    setState(() {
+      beats.forEach((beat) => beat.setIsOn(false));
+    });
   }
 
   // metronome functions
   void toggleMetronome() {
-    isMetronomePlaying = isMetronomePlaying ? false : true;
-    currentBeat = 0;
-    setBeatDisplays();
+    print('toggle');
+    setState(() {
+      isMetronomePlaying = isMetronomePlaying ? false : true;
+      currentBeat = 0;
+    });
+
     if (isMetronomePlaying) { playMetronome(); }
     else { timer.cancel(); disableBeatDisplays(); }
   }
-  // TODO: fix 'setState() called in constructor: 4' error when pressed
   void playMetronome() {
-
+    print('playMetronome');
     disableBeatDisplays();
 
-    // highlight current display
-    beatDisplays.elementAt(currentBeat).setIsOn(true);
+    // TODO: highlight current display using list
+    setState(() {
+      beats[currentBeat].setIsOn(true);
+    });
+
+    // play sound
+    if (beats[currentBeat].sound == -1) { SystemSound.play(SystemSoundType.click); }
+    else { FlutterMidi.playMidiNote(midi: beats[currentBeat].sound); }
 
     // add to current beat
     currentBeat++;

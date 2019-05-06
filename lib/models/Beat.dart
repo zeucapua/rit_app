@@ -4,17 +4,16 @@ class Beat {
   // TODO: add dotted values for each of these
   int value; // note value: 1 - whole, 2 - half, 4 - quarter, 8 - eighth, 16 - sixteenth
   int sound; // if -1, play SystemSound : else play midi equivalent
+  bool isOn; // if note is being played - true, vice versa
   Duration beatDuration; // the actual amount ms
 
   // constructor
-  Beat(this.value, this.sound) { beatDuration = Duration(); /* init */ }
+  Beat(this.value, this.sound) { isOn = false; beatDuration = Duration(); /* init */ }
 
   // methods
   void setSound(int toSet) { sound = toSet; }
-  void setValue(int toSet, int bottomTimeSignature, Duration tempoDuration) {
-    value = toSet; setBeatDuration(bottomTimeSignature, tempoDuration);
-  }
-
+  void setValue(int toSet) { value = toSet; }
+  void setIsOn(bool toSet) { isOn = toSet; }
 
   void setBeatDuration(int bottomTimeSignature, Duration tempoDuration) {
 
