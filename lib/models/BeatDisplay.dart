@@ -8,7 +8,7 @@ class BeatDisplay extends StatefulWidget {
   BeatDisplayState state;
 
   // constructor
-  BeatDisplay(Beat beat) { state = BeatDisplayState(beat); }
+  BeatDisplay(int value) { state = BeatDisplayState(value); }
   @override BeatDisplayState createState() => state;
 
   // methods for pages to use
@@ -19,45 +19,46 @@ class BeatDisplay extends StatefulWidget {
 class BeatDisplayState extends State<BeatDisplay> {
 
   // instance variables
-  Beat beat;
+  int value;
+  bool isOn;
   Icon icon;
 
   // constructor
-  BeatDisplayState(this.beat);
+  BeatDisplayState(this.value) { isOn = false; }
 
   // build
   @override
   Widget build(BuildContext context) {
 
-    switch (beat.value) {
+    switch (value) {
       case 1:
         icon = Icon(
             Constants.whole,
-            color: beat.isOn ? Colors.blue : Colors.black,
+            color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
       case 2:
         icon = Icon(
             Constants.half,
-            color: beat.isOn ? Colors.blue : Colors.black,
+            color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
       case 4:
         icon = Icon(
             Constants.quarter,
-            color: beat.isOn ? Colors.blue : Colors.black,
+            color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
       case 8:
         icon = Icon(
             Constants.eighth,
-            color: beat.isOn ? Colors.blue : Colors.black,
+            color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
       case 16:
         icon = Icon(
             Constants.sixteenth,
-            color: beat.isOn ? Colors.blue : Colors.black,
+            color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
     }
@@ -65,12 +66,12 @@ class BeatDisplayState extends State<BeatDisplay> {
     return Container(child: icon);
   }
 
-  void setIsOn(bool toSet) { setState(() { beat.isOn = toSet; }); }
-  void setValue(int toSet) { setState(() { beat.setValue(toSet); }); }
+  void setIsOn(bool toSet) { setState(() { isOn = toSet; }); }
+  void setValue(int toSet) { setState(() { setValue(toSet); }); }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.debug}) {
     // TODO: implement toString
-    return beat.value.toString();
+    return value.toString();
   }
 }
