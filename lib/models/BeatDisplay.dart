@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rit_app/models/Beat.dart';
 import 'package:rit_app/models/Constants.dart';
 
 class BeatDisplay extends StatefulWidget {
@@ -31,13 +30,13 @@ class BeatDisplayState extends State<BeatDisplay> {
   Widget build(BuildContext context) {
 
     switch (value) {
-      case 1:
+      case 16:
         icon = Icon(
             Constants.whole,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
-      case 2:
+      case 8:
         icon = Icon(
             Constants.half,
             color: isOn ? Colors.blue : Colors.black,
@@ -49,13 +48,13 @@ class BeatDisplayState extends State<BeatDisplay> {
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
-      case 8:
+      case 2:
         icon = Icon(
             Constants.eighth,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         ); break;
-      case 16:
+      case 1:
         icon = Icon(
             Constants.sixteenth,
             color: isOn ? Colors.blue : Colors.black,
