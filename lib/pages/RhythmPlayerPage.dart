@@ -177,13 +177,19 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
       setState(() {
         beats.add(toAdd);
-        initBeatDisplays();
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(toAdd.value));
       });
     }
 
 
   }
-  
+  void deleteBeat() {
+    setState(() {
+      beats.removeLast();
+      beatDisplays = List.from(beatDisplays)..removeLast();
+    });
+  }
+
   // widget functions
   void setMetronomeIcon() {
     setState(() {
@@ -201,7 +207,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   }
 
 
-  // TODO: WORK ON BEATDISPLAYS
   void initBeatDisplays() {
     beatDisplays = [];
     beats.forEach((beat) => beatDisplays.add(BeatDisplay(beat.value)));
@@ -319,8 +324,8 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     disableBeatDisplays();
     
     Beat current = beats[currentBeat];
-    
-    // TODO: highlight current display using list
+
+    // highlight current BeatDisplay
     setState(() {
       beatDisplays[currentBeat].setIsOn(true);
     });
@@ -334,7 +339,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     // add to current beat
     currentBeat++;
     if (currentBeat == topTimeSignature) { currentBeat = 0; }
-    timer = Timer(current.beatDuration, () => () { FlutterMidi.stopMidiNote(midi: midiSound); playPlayer(); });
+    timer = Timer(current.beatDuration, () => playPlayer());
 
   }
   
