@@ -35,64 +35,67 @@ class MetronomePageState extends State<MetronomePage> {
 
           child: Center(
 
-            child: Column(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
 
-              children: <Widget>[
+                  // tempo button
+                  FlatButton(
+                    child: Row(
+                      children: <Widget>[
+                        metronomeIcon,
+                        Text('= $tempo')
+                      ],
+                    ),
+                    onPressed: () => showTempoDialog(),
+                  ),
 
-                // tempo button
-                FlatButton(
-                  child: Row(
+
+                  Row(
                     children: <Widget>[
-                      metronomeIcon,
-                      Text('= $tempo')
+
+                      // time signature button
+                      FlatButton(
+                        child: Column(
+                            children: <Widget>[
+                              Text(topTimeSignature.toString()),
+                              Divider(),
+                              Text(bottomTimeSignature.toString())
+                            ]
+                        ),
+
+                        onPressed: () => showTimeSignatureDialog(),
+                      ),
+                      Container(
+                        height: 100,
+                        child: ListView.builder(
+                          reverse: false,
+                          shrinkWrap: true  ,
+                          scrollDirection: Axis.horizontal,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: beatDisplays.length,
+                          itemBuilder: (context, index) {
+                            return beatDisplays[index];
+                          },
+                        ),
+                      )
+
                     ],
                   ),
-                  onPressed: () => showTempoDialog(),
-                ),
+
+                  // play button
+                  FlatButton(
+                    child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                    onPressed: () => toggleMetronome(),
+                  )
 
 
-                Row(
-                  children: <Widget>[
-
-                    // time signature button
-                    FlatButton(
-                      child: Column(
-                          children: <Widget>[
-                            Text(topTimeSignature.toString()),
-                            Divider(),
-                            Text(bottomTimeSignature.toString())
-                          ]
-                      ),
-
-                      onPressed: () => showTimeSignatureDialog(),
-                    ),
-                    Container(
-                      height: 100,
-                      child: ListView(
-                        shrinkWrap: true,
-                        reverse: false,
-                        scrollDirection: Axis.horizontal,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: beatDisplays,
-                      ),
-                    )
-
-                  ],
-                ),
-
-                // play button
-                FlatButton(
-                  child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-                  onPressed: () => toggleMetronome(),
-                )
-
-
-              ],
-            )
+                ],
+              )
           ),
         ),
       ),
-
 
     );
 
@@ -169,19 +172,30 @@ class MetronomePageState extends State<MetronomePage> {
     });
   }
 
-  // TODO: WORK ON BEATDISPLAYS
   void initBeatDisplays() {
-    beatDisplays = List<BeatDisplay>();
+    beatDisplays = [];
+    int value = 0;
+    switch (bottomTimeSignature) {
+      case 8: value = 2; break;
+      case 2: value = 8; break;
+      default: value = 4; break;
+    }
     for (int x = 0; x < topTimeSignature; x++) {
-      beatDisplays.add(BeatDisplay(bottomTimeSignature));
+      beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value));
     }
   }
   void setBeatDisplays() {
-    // TODO:
+    int value = 0;
+    switch (bottomTimeSignature) {
+      case 8: value = 2; break;
+      case 2: value = 8; break;
+      default: value = 4; break;
+    }
     setState(() {
-      beatDisplays.clear();
+      int currentLength = beatDisplays.length;
+      for (int x = 0; x < currentLength; )
       for (int x = 0; x < topTimeSignature; x++) {
-        beatDisplays.add(BeatDisplay(bottomTimeSignature));
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value));
       }
     });
   }
