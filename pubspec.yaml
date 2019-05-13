@@ -58,3 +58,18 @@ flutter:
     - family: sixteenth
       fonts:
         - asset: assets/fonts/ic_sixteenth.ttf
+    - family: whole_rest
+      fonts:
+        - asset: assets/fonts/ic_whole_rest.ttf
+    - family: half_rest
+      fonts:
+      - asset: assets/fonts/ic_half_rest.ttf
+    - family: quarter_rest
+      fonts:
+      - asset: assets/fonts/ic_quarter_rest.ttf
+    - family: eighth_rest
+      fonts:
+      - asset: assets/fonts/ic_eighth_rest.ttf
+    - family: thirtysecond_rest
+      fonts:
+      - asset: assets/fonts/ic_thirtysecond_rest.ttf

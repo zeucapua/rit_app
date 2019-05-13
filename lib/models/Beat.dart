@@ -25,6 +25,8 @@ class Beat {
         case 4: beatDuration = tempoDuration;     break;
         case 2:  beatDuration = tempoDuration ~/ 2; break;
         case 1: beatDuration = tempoDuration ~/ 4; break;
+        case 0: beatDuration = tempoDuration*0; break;
+        case -1: beatDuration = tempoDuration*0; break;
         default: print("Invalid Value");       break;
       }
     }
@@ -37,6 +39,8 @@ class Beat {
         case 4: beatDuration = tempoDuration * 2; break;
         case 2: beatDuration = tempoDuration;     break;
         case 1: beatDuration = tempoDuration ~/ 2; break;
+        case 0: beatDuration = tempoDuration*0; break;
+        case -1: beatDuration = tempoDuration*0; break;
         default: print("Invalid Value");       break;
       }
     }
@@ -49,6 +53,8 @@ class Beat {
         case 4: beatDuration = tempoDuration ~/ 2; break;
         case 2: beatDuration = tempoDuration ~/ 4; break;
         case 1: beatDuration = tempoDuration ~/ 8; break;
+        case 0: beatDuration = tempoDuration*0; break;
+        case -1: beatDuration = tempoDuration*0; break;
         default: print("Invalid Value");       break;
       }
     }

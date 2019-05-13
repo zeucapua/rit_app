@@ -21,25 +21,25 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
   int currentBeat;
   bool isMetronomePlaying;
+  bool noteOrRest =true;
 
   List<Beat> beats;
   List<BeatDisplay> beatDisplays;
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      key: _scaffoldKey,
+
       body: Container(
         child: SafeArea(
 
           child: Center(
+            child: Stack(
+              children: <Widget>[
+                Column(
 
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
 
                   // tempo button
@@ -54,60 +54,80 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
                   ),
 
 
-                  Align(
-                    alignment: FractionalOffset.center,
-                    child: Row(
-                      children: <Widget>[
+                  Row(
+                    children: <Widget>[
 
-                        // time signature button
-                        FlatButton(
-                          child: Column(
-                              children: <Widget>[
-                                Text(topTimeSignature.toString()),
-                                Divider(),
-                                Text(bottomTimeSignature.toString())
-                              ]
-                          ),
-
-                          onPressed: () => showTimeSignatureDialog(),
+                      // time signature button
+                      FlatButton(
+                        child: Column(
+                            children: <Widget>[
+                              Text(topTimeSignature.toString()),
+                              Divider(),
+                              Text(bottomTimeSignature.toString())
+                            ]
                         ),
-                        Container(
-                          height: 100.0,
-                          child: ListView.builder(
-                            reverse: false,
-                            shrinkWrap: true  ,
-                            scrollDirection: Axis.horizontal,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: beatDisplays.length,
-                            itemBuilder: (context, index) {
-                              return beatDisplays[index];
-                            },
-                          ),
-                        )
 
-                      ],
-                    ),
+                        onPressed: () => showTimeSignatureDialog(),
+                      ),
+                      Container(
+                        height: 100.0,
+                        child: ListView.builder(
+                          reverse: false,
+                          shrinkWrap: true  ,
+                          scrollDirection: Axis.horizontal,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: beatDisplays.length,
+                          itemBuilder: (context, index) {
+                            return beatDisplays[index];
+                          },
+                        ),
+                      ),
+
+                    ],
                   ),
 
                   // play button
-                  Align(
-                    alignment: FractionalOffset.centerRight,
-                    child: Container(
-                      padding: EdgeInsets.only(right: 20.0),
-                      child: FloatingActionButton(
-                        child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-                        onPressed: () => togglePlayer(),
-                      ),
-                    ),
+                  FlatButton(
+                    child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                    onPressed: () => togglePlayer(),
                   )
 
+
+
                 ],
-              )
+              ),
+
+                Positioned(
+                    left:50.0,
+                    right: 50.0,
+                    bottom: 50.0,
+                    child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      _buildButton(2),
+                      _buildButton(1),
+                      _buildButton(-20),
+                      _buildButton(0),//makes delete key
+                    ])
+                ),
+
+                Positioned(
+                  left:50.0,
+                  right: 50.0,
+                  bottom: 152.0,
+                  child:Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    _buildButton(16),
+                    _buildButton(8),
+                    _buildButton(4),
+                    _buildButton(-4),
+                  ])
+                ),
+
+              ],
+            )
           ),
         ),
       ),
 
-      //floatingActionButton: FloatingActionButton(onPressed: () => addBeat(Beat(2), true)),
+      //floatingActionButton: FloatingActionButton(onPressed: () => addBeat(Beat(4), true)),
 
     );
 
@@ -151,20 +171,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     });
     setTempoDuration();
   }
-  void setMetronomeIcon() {
-    setState(() {
-      switch (bottomTimeSignature) {
-        case 2:
-          metronomeIcon = Icon(Constants.half); break;
-        case 4:
-          metronomeIcon = Icon(Constants.quarter); break;
-        case 8:
-          metronomeIcon = Icon(Constants.eighth); break;
-        default:
-          metronomeIcon = Icon(Constants.quarter); break;
-      }
-    });
-  }
   void setTimeSignature(int topToSet, int botToSet) {
 
     Navigator.pop(context);
@@ -192,13 +198,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     int beatsSum = 0;
     beats.forEach((beat) => beatsSum += beat.value);
 
-    if (beatsSum + toAdd.value > timeSignatureSum) {
-      final errorBar = SnackBar(
-        content: Text('Bar already full!'),
-        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
-      );
-      _scaffoldKey.currentState.showSnackBar(errorBar);
-    }
+    if (beatsSum + toAdd.value > timeSignatureSum) { print('Error too long'); }
     else {
       if (isNote) { toAdd.setSound(60); }
       else { toAdd.setSound(-1); }
@@ -207,7 +207,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
       setState(() {
         beats.add(toAdd);
-        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(toAdd.value));
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(toAdd.value,noteOrRest));
       });
     }
 
@@ -221,9 +221,25 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   }
 
   // widget functions
+  void setMetronomeIcon() {
+    setState(() {
+      switch (bottomTimeSignature) {
+        case 2:
+          metronomeIcon = Icon(Constants.half); break;
+        case 4:
+          metronomeIcon = Icon(Constants.quarter); break;
+        case 8:
+          metronomeIcon = Icon(Constants.eighth); break;
+        default:
+          metronomeIcon = Icon(Constants.quarter); break;
+      }
+    });
+  }
+
+
   void initBeatDisplays() {
     beatDisplays = [];
-    beats.forEach((beat) => beatDisplays.add(BeatDisplay(beat.value)));
+    beats.forEach((beat) => beatDisplays.add(BeatDisplay(beat.value,noteOrRest)));
   }
   void resetBeatDisplays() {
     initBeats();
@@ -235,14 +251,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
       beatDisplays.forEach((display) => display.setIsOn(false));
     });
   }
-  bool checkBar() {
-    // for togglePlayer() use
-    // check if the current num of beats is equal to the bar value
-    int timeSignatureSum = topTimeSignature * bottomTimeSignature;
-    int beatsSum = 0;
-    beats.forEach((beat) => beatsSum += beat.value);
-    return beatsSum == timeSignatureSum;
-  }
+
   void showTempoDialog() {
     int toSet = tempo;
 
@@ -332,26 +341,15 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   // rhythm player functions
   void togglePlayer() {
     print('toggle');
+    setState(() {
+      isMetronomePlaying = isMetronomePlaying ? false : true;
+      currentBeat = 0;
+    });
 
-    if (checkBar()) {
-      setState(() {
-        isMetronomePlaying = isMetronomePlaying ? false : true;
-        currentBeat = 0;
-      });
-
-      if (isMetronomePlaying) { playPlayer(); }
-      else { timer.cancel(); disableBeatDisplays(); }
-    }
-    else {
-      final errorBar = SnackBar(
-        content: Text('Cannot play incomplete bar!'),
-        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
-      );
-      _scaffoldKey.currentState.showSnackBar(errorBar);
-    }
-
+    if (isMetronomePlaying) { playPlayer(); }
+    else { timer.cancel(); disableBeatDisplays(); }
   }
-  void playPlayer() {
+  void playPlayer() { //lalapalooza
     print('playMetronome');
     disableBeatDisplays();
     
@@ -364,16 +362,110 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     // play sound
     int midiSound = current.sound;
-    if (midiSound != -1) {
+    if (midiSound != -1 && beatDisplays[currentBeat].shorrBet) {
       FlutterMidi.playMidiNote(midi: midiSound);
     }
 
     // add to current beat
     currentBeat++;
-    if (currentBeat == beats.length) { currentBeat = 0; }
+    if (currentBeat == topTimeSignature) { currentBeat = 0; }
     timer = Timer(current.beatDuration, () => playPlayer());
 
   }
-  
+
+
+  Widget _buildButton(int val){
+    final button = Stack(
+      children: <Widget>[
+        Semantics(
+            button:true,
+            child: Material(
+                color: Colors.black,
+                child: InkWell(
+                  highlightColor: Colors.grey,
+                  onTap: (){
+                    if(val>0) {
+                      addBeat(Beat(val), true);
+                    }
+                    if(val==-4){
+                      _restSwitch(noteOrRest);
+                    }
+                    else if(val ==0){deleteBeat();}
+                    else{
+
+                    }
+                  },
+                ))),
+        Positioned(
+            left: 0.0,
+            right: 0.0,
+            bottom: 20.0,
+            child: Icon(findCon(val),color: Colors.white,),
+        ),
+      ],
+    );
+    return Container(
+        width: 100.0,
+        height:100.0,
+        child:button,
+        margin: EdgeInsets.symmetric(horizontal: 2.0,)
+    );
+  }
+
+  void _restSwitch(bool isNote){
+    if(isNote) {
+      setState(() {
+        noteOrRest = false;
+      });
+    }
+    else{
+      setState(() {
+        noteOrRest = true;
+      });
+    }
+  }
+
+  IconData findCon(int val){
+    int value = val;
+    if(!noteOrRest){
+      value = -val;
+    }
+    if(value == 16){
+      return IconData(0xe900, fontFamily: 'whole');
+    }
+    else if(value ==8){
+      return IconData(0xe900, fontFamily: 'half');
+    }
+    else if(value ==4){
+      return IconData(0xe900, fontFamily: 'quarter');
+    }
+    else if(value ==2){
+      return IconData(0xe900, fontFamily: 'eighth');
+    }
+    else if(value ==1){
+      return IconData(0xe900, fontFamily: 'sixteenth');
+    }
+    else if(value ==0){
+      return IconData(57674, fontFamily: 'MaterialIcons', matchTextDirection: true);
+    }
+    else if(value ==-8){
+      return IconData(0xe900, fontFamily: 'half_rest');
+    }
+    else if(value ==-4){
+      return IconData(0xe900, fontFamily: 'quarter_rest');
+    }
+    else if(value ==-2){
+      return IconData(0xe900, fontFamily: 'eighth_rest');
+    }
+    else if(value ==-1){
+      return IconData(0xe900, fontFamily: 'thirtysecond_rest');
+    }
+    else if(value ==-16){
+      return IconData(0xe900, fontFamily: 'whole_rest');
+    }
+    else{
+      return null;
+    }
+  }
 
 }

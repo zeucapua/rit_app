@@ -14,6 +14,12 @@ class Constants {
   static const IconData eighth = IconData(0xe900, fontFamily: 'eighth');
   static const IconData sixteenth = IconData(0xe900, fontFamily: 'sixteenth');
 
+  static const IconData wholeRest = IconData(0xe900, fontFamily: 'whole_rest');
+  static const IconData halfRest = IconData(0xe900, fontFamily: 'half_rest');
+  static const IconData quarterRest = IconData(0xe900, fontFamily: 'quarter_rest');
+  static const IconData eighthRest = IconData(0xe900, fontFamily: 'eighth_rest');
+  static const IconData sixteenthRest = IconData(0xe900, fontFamily: 'thirtysecond_rest');
+
   // constant beat display size
   static const double BEATDISPLAY_SIZE = 50.0;
 }
