@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_midi/flutter_midi.dart';
 
-import 'package:rit_app/models/Beat.dart';
 import 'package:rit_app/models/BeatDisplay.dart';
 import 'package:rit_app/models/Constants.dart';
 
@@ -146,8 +145,9 @@ class MetronomePageState extends State<MetronomePage> {
     setState(() {
       topTimeSignature = topToSet;
       bottomTimeSignature = botToSet;
-      setBeatDisplays();
     });
+
+    setBeatDisplays();
 
   }
   void loadSound(String asset) async {
@@ -177,26 +177,33 @@ class MetronomePageState extends State<MetronomePage> {
     int value = 0;
     switch (bottomTimeSignature) {
       case 8: value = 2; break;
+      case 4: value = 4; break;
       case 2: value = 8; break;
-      default: value = 4; break;
     }
     for (int x = 0; x < topTimeSignature; x++) {
-      beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value,true));
+      setState(() {
+        beatDisplays.add(BeatDisplay(value));
+      });
     }
   }
   void setBeatDisplays() {
     int value = 0;
     switch (bottomTimeSignature) {
       case 8: value = 2; break;
+      case 4: value = 4; break;
       case 2: value = 8; break;
-      default: value = 4; break;
     }
+    clearBeatDisplays();
+    for (int x = 0; x < topTimeSignature; x++) {
+      setState(() {
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value));
+      });
+    }
+
+  }
+  void clearBeatDisplays() {
     setState(() {
-      int currentLength = beatDisplays.length;
-      for (int x = 0; x < currentLength; )
-      for (int x = 0; x < topTimeSignature; x++) {
-        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value,true));
-      }
+      beatDisplays = List.from(beatDisplays)..clear();
     });
   }
   void disableBeatDisplays() {
@@ -307,7 +314,7 @@ class MetronomePageState extends State<MetronomePage> {
     print('playMetronome');
     disableBeatDisplays();
 
-    // TODO: highlight current display using list
+    // highlight current BeatDisplay
     setState(() {
       beatDisplays[currentBeat].setIsOn(true);
     });
