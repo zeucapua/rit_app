@@ -182,7 +182,7 @@ class MetronomePageState extends State<MetronomePage> {
     }
     for (int x = 0; x < topTimeSignature; x++) {
       setState(() {
-        beatDisplays.add(BeatDisplay(value));
+        beatDisplays.add(BeatDisplay(value,true));
       });
     }
   }
@@ -196,7 +196,7 @@ class MetronomePageState extends State<MetronomePage> {
     clearBeatDisplays();
     for (int x = 0; x < topTimeSignature; x++) {
       setState(() {
-        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value));
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value,true));
       });
     }
 
