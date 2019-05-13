@@ -5,6 +5,7 @@ import 'package:flutter_midi/flutter_midi.dart';
 
 import 'package:rit_app/models/Beat.dart';
 import 'package:rit_app/models/BeatDisplay.dart';
+import 'package:rit_app/models/BeatInput.dart';
 import 'package:rit_app/models/Constants.dart';
 
 class RhythmPlayerPage extends StatefulWidget { @override RhythmPlayerPageState createState() => RhythmPlayerPageState(); }
@@ -21,6 +22,8 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
   int currentBeat;
   bool isMetronomePlaying;
+
+  bool isInputtingRest;
 
   List<Beat> beats;
   List<BeatDisplay> beatDisplays;
@@ -39,67 +42,138 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
 
-                  // tempo button
-                  FlatButton(
-                    child: Row(
-                      children: <Widget>[
-                        metronomeIcon,
-                        Text('= $tempo')
-                      ],
-                    ),
-                    onPressed: () => showTempoDialog(),
-                  ),
+                  // bar display
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
 
-
-                  Align(
-                    alignment: FractionalOffset.center,
-                    child: Row(
-                      children: <Widget>[
-
-                        // time signature button
-                        FlatButton(
-                          child: Column(
-                              children: <Widget>[
-                                Text(topTimeSignature.toString()),
-                                Divider(),
-                                Text(bottomTimeSignature.toString())
-                              ]
-                          ),
-
-                          onPressed: () => showTimeSignatureDialog(),
+                      // tempo button
+                      FlatButton(
+                        child: Row(
+                          children: <Widget>[
+                            metronomeIcon,
+                            Text('= $tempo')
+                          ],
                         ),
-                        Container(
-                          height: 100.0,
-                          child: ListView.builder(
-                            reverse: false,
-                            shrinkWrap: true  ,
-                            scrollDirection: Axis.horizontal,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: beatDisplays.length,
-                            itemBuilder: (context, index) {
-                              return beatDisplays[index];
-                            },
-                          ),
-                        )
+                        onPressed: () => showTempoDialog(),
+                      ),
 
-                      ],
-                    ),
+
+                      Align(
+                        alignment: FractionalOffset.center,
+                        child: Row(
+                          children: <Widget>[
+
+                            // time signature button
+                            FlatButton(
+                              child: Column(
+                                  children: <Widget>[
+                                    Text(topTimeSignature.toString()),
+                                    Divider(),
+                                    Text(bottomTimeSignature.toString())
+                                  ]
+                              ),
+
+                              onPressed: () => showTimeSignatureDialog(),
+                            ),
+                            Container(
+                              height: 100.0,
+                              child: ListView.builder(
+                                reverse: false,
+                                shrinkWrap: true  ,
+                                scrollDirection: Axis.horizontal,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: beatDisplays.length,
+                                itemBuilder: (context, index) {
+                                  return beatDisplays[index];
+                                },
+                              ),
+                            )
+
+                          ],
+                        ),
+                      ),
+
+                      // play button
+                      Align(
+                        alignment: FractionalOffset.centerRight,
+                        child: Container(
+                          padding: EdgeInsets.only(right: 20.0),
+                          child: FlatButton(
+                            child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                            onPressed: () => togglePlayer(),
+                          ),
+                        ),
+                      ),
+
+
+                    ],
                   ),
 
-                  // play button
-                  Align(
-                    alignment: FractionalOffset.centerRight,
-                    child: Container(
-                      padding: EdgeInsets.only(right: 20.0),
-                      child: FloatingActionButton(
-                        child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-                        onPressed: () => togglePlayer(),
+
+                  // beat input
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+
+                      Column(
+                        children: <Widget>[
+
+                          Row(
+                            children: <Widget>[
+
+                              BeatInput(16, () => addBeat(Beat(16), isInputtingRest)),
+                              BeatInput(8, () => addBeat(Beat(8), isInputtingRest)),
+                              BeatInput(4, () => addBeat(Beat(4), isInputtingRest)),
+
+
+                            ],
+                          ),
+
+                          Row(
+                            children: <Widget>[
+
+                              BeatInput(2, () => addBeat(Beat(2), isInputtingRest)),
+                              BeatInput(1, () => addBeat(Beat(1), isInputtingRest)),
+                              BeatInput(-1, () => addBeat(Beat(-1), isInputtingRest)),
+
+                            ],
+                          )
+
+                        ],
+
+
+
                       ),
-                    ),
+
+
+                      Column(
+                        children: <Widget>[
+
+                          FlatButton(
+                            child: Icon(Icons.map), // TODO: change into "rest & quarter"
+                            onPressed: () => isInputtingRest = isInputtingRest ? false : true,
+                          ),
+
+                          Divider(),
+
+                          FlatButton(
+                            child: Icon(Icons.backspace),
+                            onPressed: () => deleteBeat()
+                          )
+
+
+                        ],
+                      )
+
+
+                    ],
                   )
+
 
                 ],
               )
@@ -107,7 +181,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
         ),
       ),
 
-      //floatingActionButton: FloatingActionButton(onPressed: () => addBeat(Beat(2), true)),
 
     );
 
@@ -134,6 +207,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     // initialize beats and displays
     initBeats();
     initBeatDisplays();
+    isInputtingRest = false;
 
     // initialize midi
     loadSound('assets/sounds/Steinway+Grand+Piano+ER3A.sf2');
@@ -150,6 +224,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
       tempo = toSet;
     });
     setTempoDuration();
+    setBeatsDurations();
   }
   void setMetronomeIcon() {
     setState(() {
@@ -172,8 +247,9 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     setState(() {
       topTimeSignature = topToSet;
       bottomTimeSignature = botToSet;
-      resetBeatDisplays();
     });
+
+    resetBeatDisplays();
 
   }
   void loadSound(String asset) async {
@@ -186,15 +262,22 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     beats = [];
   }
   void addBeat(Beat toAdd, bool isNote) {
-
+    // TODO: add dotted and rest functions
     // check if able to add onto bar based on time signature
-    int timeSignatureSum = topTimeSignature * bottomTimeSignature;
+    int bottomValue = 0;
+    switch (bottomTimeSignature) {
+      case 8: bottomValue = 2; break;
+      case 4: bottomValue = 4; break;
+      case 2: bottomValue = 8; break;
+    }
+    int timeSignatureSum = topTimeSignature * bottomValue;
+    print(timeSignatureSum);
     int beatsSum = 0;
     beats.forEach((beat) => beatsSum += beat.value);
 
     if (beatsSum + toAdd.value > timeSignatureSum) {
       final errorBar = SnackBar(
-        content: Text('Bar already full!'),
+        content: Text('Adding would be over time signature!'),
         action: SnackBarAction(label: 'Okay', onPressed: () => {}),
       );
       _scaffoldKey.currentState.showSnackBar(errorBar);
@@ -214,11 +297,24 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
   }
   void deleteBeat() {
-    setState(() {
-      beats.removeLast();
-      beatDisplays = List.from(beatDisplays)..removeLast();
-    });
+    if (beatDisplays.length != 0) {
+      setState(() {
+        beats.removeLast();
+        beatDisplays = List.from(beatDisplays)..removeLast();
+      });
+    }
+    else {
+      final errorBar = SnackBar(
+        content: Text('Nothing to delete!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
   }
+  void setBeatsDurations() {
+    beats.forEach((beat) => beat.setBeatDuration(bottomTimeSignature, tempoDuration));
+  }
+
 
   // widget functions
   void initBeatDisplays() {
@@ -226,8 +322,10 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     beats.forEach((beat) => beatDisplays.add(BeatDisplay(beat.value)));
   }
   void resetBeatDisplays() {
-    initBeats();
-    initBeatDisplays();
+    setState(() {
+      beats = List.from(beats)..clear();
+      beatDisplays = List.from(beatDisplays)..clear();
+    });
   }
   void disableBeatDisplays() {
     print('disable');
@@ -241,6 +339,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     int timeSignatureSum = topTimeSignature * bottomTimeSignature;
     int beatsSum = 0;
     beats.forEach((beat) => beatsSum += beat.value);
+    print(beatsSum);
     return beatsSum == timeSignatureSum;
   }
   void showTempoDialog() {

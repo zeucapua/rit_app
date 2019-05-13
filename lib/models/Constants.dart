@@ -7,7 +7,7 @@ class Constants {
   static const int MINUTE_IN_MILLISECONDS = 60000;
 
   // IconData for each of the vector notes
-  // TODO: add dotted icons
+  // TODO: add dotted icons and rests
   static const IconData whole = IconData(0xe900, fontFamily: 'whole');
   static const IconData half = IconData(0xe900, fontFamily: 'half');
   static const IconData quarter = IconData(0xe900, fontFamily: 'quarter');
