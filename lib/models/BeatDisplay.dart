@@ -5,10 +5,9 @@ class BeatDisplay extends StatefulWidget {
 
   // state of BeatDisplay
   BeatDisplayState state;
-  bool shorrBet;
 
   // constructor
-  BeatDisplay(int value, bool noteOrNo) { state = BeatDisplayState(value,noteOrNo); shorrBet = noteOrNo; }
+  BeatDisplay(int value, bool isRest) { state = BeatDisplayState(value, isRest); }
   @override BeatDisplayState createState() => state;
 
   // methods for pages to use
@@ -22,99 +21,57 @@ class BeatDisplayState extends State<BeatDisplay> {
   int value;
   bool isOn;
   Icon icon;
-  bool noteOrNo;
+  bool isRest;
 
   // constructor
-  BeatDisplayState(this.value,bool isItNote) { isOn = false; noteOrNo = isItNote;}
+  BeatDisplayState(this.value, this.isRest) { isOn = false; }
 
   // build
   @override
   Widget build(BuildContext context) {
-if(noteOrNo) {
-  switch (value) {
-    case 16:
-      icon = Icon(
-          Constants.whole,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 8:
-      icon = Icon(
-          Constants.half,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 4:
-      icon = Icon(
-          Constants.quarter,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 2:
-      icon = Icon(
-          Constants.eighth,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 1:
-      icon = Icon(
-          Constants.sixteenth,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-  }
-}
-else {
-  switch (value) {
-    case 16:
-      icon = Icon(
-          Constants.wholeRest,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 8:
-      icon = Icon(
-          Constants.halfRest,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 4:
-      icon = Icon(
-          Constants.quarterRest,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 2:
-      icon = Icon(
-          Constants.eighthRest,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-    case 1:
-      icon = Icon(
-          Constants.sixteenthRest,
-          color: isOn ? Colors.blue : Colors.black,
-          size: Constants.BEATDISPLAY_SIZE
-      );
-      break;
-  }
-}
+    switch (value) {
+      case 16:
+        icon = Icon(
+            isRest ? Constants.wholeRest : Constants.whole,
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
+      case 8:
+        icon = Icon(
+            isRest ? Constants.halfRest : Constants.half,
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
+      case 4:
+        icon = Icon(
+            isRest ? Constants.quarterRest : Constants.quarter,
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
+      case 2:
+        icon = Icon(
+            isRest ? Constants.eighthRest : Constants.eighth,
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
+      case 1:
+        icon = Icon(
+            isRest ? Constants.sixteenthRest : Constants.sixteenth,
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
+    }
 
     return Container(child: icon);
   }
 
   void setIsOn(bool toSet) { setState(() { isOn = toSet; }); }
   void setValue(int toSet) { setState(() { setValue(toSet); }); }
-  void setIcon(Icon toSet){setState((){icon = toSet;});}
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.debug}) {

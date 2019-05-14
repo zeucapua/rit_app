@@ -25,13 +25,16 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
   List<Beat> beats;
   List<BeatDisplay> beatDisplays;
+  List<BeatInput> topBeatInputs;
+  List<BeatInput> bottomBeatInputs;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-
+      key: _scaffoldKey,
       body: Container(
         child: SafeArea(
 
@@ -151,6 +154,19 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     // initialize widgets
     setMetronomeIcon();
 
+    // initialize inputs
+    isInputtingRests = false;
+    topBeatInputs = [
+      BeatInput(16, isInputtingRests, () => addBeat(Beat(16), isInputtingRests)),
+      BeatInput(8, isInputtingRests, () => addBeat(Beat(8), isInputtingRests)),
+      BeatInput(4, isInputtingRests, () => addBeat(Beat(4), isInputtingRests)),
+    ];
+    bottomBeatInputs = [
+      BeatInput(2, isInputtingRests, () => addBeat(Beat(2), isInputtingRests)),
+      BeatInput(1, isInputtingRests, () => addBeat(Beat(1), isInputtingRests)),
+      BeatInput(-1, isInputtingRests, () => addBeat(Beat(-1), isInputtingRests)),
+    ];
+
     // initialize beats and displays
     initBeats();
     initBeatDisplays();
@@ -200,8 +216,8 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     if (beatsSum + toAdd.value > timeSignatureSum) { print('Error too long'); }
     else {
-      if (isNote) { toAdd.setSound(60); }
-      else { toAdd.setSound(-1); }
+      if (isRest) { toAdd.setSound(-1); }
+      else { toAdd.setSound(60); }
 
       toAdd.setBeatDuration(bottomTimeSignature, tempoDuration);
 
@@ -239,7 +255,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
   void initBeatDisplays() {
     beatDisplays = [];
-    beats.forEach((beat) => beatDisplays.add(BeatDisplay(beat.value,noteOrRest)));
   }
   void resetBeatDisplays() {
     initBeats();
