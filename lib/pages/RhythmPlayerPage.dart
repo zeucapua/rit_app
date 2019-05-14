@@ -214,18 +214,56 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     int beatsSum = 0;
     beats.forEach((beat) => beatsSum += beat.value);
 
-    if (beatsSum + toAdd.value > timeSignatureSum) { print('Error too long'); }
+    bool isAddingDotted = false;
+
+    if (toAdd.value == -1) {
+      int lastBeatValue = beats.last.value;
+      int dottedToAdd = 0;
+      switch (lastBeatValue) {
+        case 16: dottedToAdd = 24; break;
+        case 8: dottedToAdd = 12; break;
+        case 4: dottedToAdd = 6; break;
+        case 2: dottedToAdd = 3; break;
+        case 1: dottedToAdd = -1; break;
+        default: dottedToAdd = 6; break;
+      }
+
+      toAdd.setValue(dottedToAdd);
+      isAddingDotted = true;
+    }
+
+    if (toAdd.value == -1) {
+      final errorBar = SnackBar(
+        content: Text('Cannot do a dotted sixteenth!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
+    else if (beatsSum + toAdd.value > timeSignatureSum) {
+      final errorBar = SnackBar(
+        content: Text('Adding would be over time signature!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
     else {
       if (isRest) { toAdd.setSound(-1); }
       else { toAdd.setSound(60); }
 
       toAdd.setBeatDuration(bottomTimeSignature, tempoDuration);
 
+      if (isAddingDotted) {
+        setState(() {
+          deleteLastBeat();
+        });
+      }
       setState(() {
         beats.add(toAdd);
-        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(toAdd.value,noteOrRest));
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(toAdd.value, isRest));
       });
+
     }
+
 
 
   }

@@ -18,13 +18,15 @@ class Beat {
     // if time signature is * / 4 [common time]
     if (bottomTimeSignature == 4) {
       switch (value) {
+        case 24: beatDuration = tempoDuration * 6; break;
         case 16: beatDuration = tempoDuration * 4; break;
+        case 12: beatDuration = tempoDuration * 3; break;
         case 8: beatDuration = tempoDuration * 2; break;
+        case 6: beatDuration = tempoDuration * 1.5; break;
         case 4: beatDuration = tempoDuration;     break;
+        case 3: beatDuration = Duration(milliseconds: (tempoDuration.inMilliseconds * 0.75).floor()); break;
         case 2:  beatDuration = tempoDuration ~/ 2; break;
         case 1: beatDuration = tempoDuration ~/ 4; break;
-        case 0: beatDuration = tempoDuration*0; break;
-        case -1: beatDuration = tempoDuration*0; break;
         default: print("Invalid Value");       break;
       }
     }
@@ -32,13 +34,15 @@ class Beat {
     // if time signature is * / 8 [duple meter]
     else if (bottomTimeSignature == 8) {
       switch (value) {
+        case 24: beatDuration = tempoDuration * 12; break;
         case 16: beatDuration = tempoDuration * 8; break;
+        case 12: beatDuration = tempoDuration * 6; break;
         case 8: beatDuration = tempoDuration * 4; break;
+        case 6: beatDuration = tempoDuration * 3; break;
         case 4: beatDuration = tempoDuration * 2; break;
+        case 3: beatDuration = tempoDuration * 1.5; break;
         case 2: beatDuration = tempoDuration;     break;
         case 1: beatDuration = tempoDuration ~/ 2; break;
-        case 0: beatDuration = tempoDuration*0; break;
-        case -1: beatDuration = tempoDuration*0; break;
         default: print("Invalid Value");       break;
       }
     }
@@ -46,13 +50,15 @@ class Beat {
     // if time signature is * / 2 [cut time]
     else if (bottomTimeSignature == 2) {
       switch (value) {
+        case 24: beatDuration = tempoDuration * 3; break;
         case 16: beatDuration = tempoDuration * 2; break;
-        case 8: beatDuration = tempoDuration; break;
+        case 12: beatDuration = tempoDuration * 1.5; break;
+        case 8: beatDuration = tempoDuration ; break;
+        case 6: beatDuration = Duration(milliseconds: (tempoDuration.inMilliseconds * 0.75).floor()); break;
         case 4: beatDuration = tempoDuration ~/ 2; break;
+        case 3: beatDuration = Duration(milliseconds: (tempoDuration.inMilliseconds * 0.375).floor()); break;
         case 2: beatDuration = tempoDuration ~/ 4; break;
         case 1: beatDuration = tempoDuration ~/ 8; break;
-        case 0: beatDuration = tempoDuration*0; break;
-        case -1: beatDuration = tempoDuration*0; break;
         default: print("Invalid Value");       break;
       }
     }
