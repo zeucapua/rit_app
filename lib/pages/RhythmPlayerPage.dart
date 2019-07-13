@@ -4,6 +4,7 @@ import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_midi/flutter_midi.dart';
 
 import 'package:rit_app/models/Beat.dart';
+import 'package:rit_app/models/BeatInput.dart';
 import 'package:rit_app/models/BeatDisplay.dart';
 import 'package:rit_app/models/Constants.dart';
 
@@ -20,8 +21,8 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   Icon metronomeIcon;
 
   int currentBeat;
-  bool isMetronomePlaying;
-  bool noteOrRest =true;
+  bool isPlayerOn;
+  bool isInputtingRests;
 
   List<Beat> beats;
   List<BeatDisplay> beatDisplays;
@@ -39,30 +40,34 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
         child: SafeArea(
 
           child: Center(
-            child: Stack(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+
+
                 Column(
 
-                children: <Widget>[
+                  children: <Widget>[
 
-                  // tempo button
-                  FlatButton(
-                    child: Row(
-                      children: <Widget>[
-                        metronomeIcon,
-                        Text('= $tempo')
-                      ],
+                    // play area
+                    // tempo button
+                    FlatButton(
+                      child: Row(
+                        children: <Widget>[
+                          metronomeIcon,
+                          Text('= $tempo')
+                        ],
+                      ),
+                      onPressed: () => showTempoDialog(),
                     ),
-                    onPressed: () => showTempoDialog(),
-                  ),
 
 
-                  Row(
-                    children: <Widget>[
+                   Row(
+                      children: <Widget>[
 
-                      // time signature button
-                      FlatButton(
-                        child: Column(
+                        // time signature button
+                        FlatButton(
+                          child: Column(
                             children: <Widget>[
                               Text(topTimeSignature.toString()),
                               Divider(),
@@ -70,59 +75,72 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
                             ]
                         ),
 
-                        onPressed: () => showTimeSignatureDialog(),
-                      ),
-                      Container(
-                        height: 100.0,
-                        child: ListView.builder(
-                          reverse: false,
-                          shrinkWrap: true  ,
-                          scrollDirection: Axis.horizontal,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: beatDisplays.length,
-                          itemBuilder: (context, index) {
-                            return beatDisplays[index];
-                          },
+                          onPressed: () => showTimeSignatureDialog(),
                         ),
-                      ),
+                        Container(
+                          height: 100.0,
+                          child: ListView.builder(
+                            reverse: false,
+                            shrinkWrap: true  ,
+                            scrollDirection: Axis.horizontal,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: beatDisplays.length,
+                            itemBuilder: (context, index) {
+                              return beatDisplays[index];
+                            },
+                          ),
+                        ),
 
-                    ],
-                  ),
+                      ],
+                    ),
 
-                  // play button
-                  FlatButton(
-                    child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-                    onPressed: () => togglePlayer(),
-                  )
+                    // play button
+                    FlatButton(
+                      child: isPlayerOn ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                      onPressed: () => togglePlayer(),
+                    ),
+
+                    // input area
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+
+                        // BeatInputs (topBeatInputs & bottomBeatInputs)
+                        Column(
+                          children: <Widget>[
+
+                            Row(
+                              children: topBeatInputs,
+                            ),
+
+                            Row(
+                              children: bottomBeatInputs,
+                            )
+
+                          ],
+                        ),
+
+                        // function buttons
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            FlatButton(child: Icon(Constants.quarterRest), onPressed: () => toggleInputtingRests(),),
+                            FlatButton(child: Icon(Icons.backspace), onPressed: () => deleteLastBeat(),)
+                          ],
+                        )
+
+
+                      ],
+                    )
 
 
 
-                ],
-              ),
-
-                Positioned(
-                    left:50.0,
-                    right: 50.0,
-                    bottom: 50.0,
-                    child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      _buildButton(2),
-                      _buildButton(1),
-                      _buildButton(-20),
-                      _buildButton(0),//makes delete key
-                    ])
+                  ],
                 ),
 
-                Positioned(
-                  left:50.0,
-                  right: 50.0,
-                  bottom: 152.0,
-                  child:Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    _buildButton(16),
-                    _buildButton(8),
-                    _buildButton(4),
-                    _buildButton(-4),
-                  ])
-                ),
+
+
 
               ],
             )
@@ -148,7 +166,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     // initialize metronome settings
     currentBeat = 0;
-    isMetronomePlaying = false;
+    isPlayerOn = false;
     timer = Timer(tempoDuration, () => print('init'));
 
     // initialize widgets
@@ -207,7 +225,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   void initBeats() {
     beats = [];
   }
-  void addBeat(Beat toAdd, bool isNote) {
+  void addBeat(Beat toAdd) {
 
     // check if able to add onto bar based on time signature
     int timeSignatureSum = topTimeSignature * bottomTimeSignature;
@@ -216,6 +234,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     bool isAddingDotted = false;
 
+    // changes the last beat in the current 'beats' list to a dotted equivalent
     if (toAdd.value == -1) {
       int lastBeatValue = beats.last != null ? beats.last.value : -1;
       int dottedToAdd = 0;
@@ -258,7 +277,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
       setState(() {
         beats.add(toAdd);
         beatDisplays = List.from(beatDisplays)..add(BeatDisplay(beat: toAdd, key: UniqueKey()));
-        setBeatsDurations();
+        beats.forEach((beat) => beat.setBeatDuration(bottomTimeSignature, tempoDuration));
       });
 
     }
@@ -266,11 +285,16 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
 
   }
-  void deleteBeat() {
+  void deleteLastBeat() {
     setState(() {
       beats.removeLast();
       beatDisplays = List.from(beatDisplays)..removeLast();
     });
+  }
+  void toggleInputtingRests() {
+    isInputtingRests = isInputtingRests ? false : true;
+    topBeatInputs.forEach((input) => input.setIsInputtingRests(isInputtingRests));
+    bottomBeatInputs.forEach((input) => input.setIsInputtingRests(isInputtingRests));
   }
 
   // widget functions
@@ -289,7 +313,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     });
   }
 
-
   void initBeatDisplays() {
     beatDisplays = [];
   }
@@ -305,88 +328,107 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   }
 
   void showTempoDialog() {
-    int toSet = tempo;
+    if (isPlayerOn) {
+      final errorBar = SnackBar(
+        content: Text('Cannot change tempo while Rhythm Player is on!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
+    else {
+      int toSet = tempo;
 
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Set Tempo'),
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Set Tempo'),
 
-            content: NumberPicker.integer(
-              initialValue: tempo,
-              minValue: 30,
-              maxValue: 180,
-              onChanged: (value) => toSet = value,
-            ),
-
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
+              content: NumberPicker.integer(
+                initialValue: tempo,
+                minValue: 30,
+                maxValue: 180,
+                onChanged: (value) => toSet = value,
               ),
 
-              FlatButton(
-                child: Text('Ok'),
-                onPressed: () => setTempo(toSet),
-              )
-            ],
-
-          );
-        }
-    );
-  }
-  void showTimeSignatureDialog() {
-    int topToSet = topTimeSignature;
-    int botToSet = bottomTimeSignature;
-
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-
-            title: Text('Set Time Signature'),
-            content: Row(
-              children: <Widget>[
-
-                NumberPicker.integer(
-                  initialValue: topTimeSignature,
-                  minValue: 2,
-                  maxValue: 12,
-                  onChanged: (value) => topToSet = value,
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
                 ),
 
-                Text('/'),
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => setTempo(toSet),
+                )
+              ],
 
-                NumberPicker.integer(
-                  initialValue: bottomTimeSignature,
-                  minValue: 2,
-                  maxValue: 8,
-                  onChanged: (value) => botToSet = value,
+            );
+          }
+      );
+    }
+  }
+  void showTimeSignatureDialog() {
+    if (isPlayerOn) {
+      final errorBar = SnackBar(
+        content: Text('Cannot change time signatures while Rhythm Player is on!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
+    else {
+      int topToSet = topTimeSignature;
+      int botToSet = bottomTimeSignature;
+
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+
+              title: Text('Set Time Signature'),
+              content: Row(
+                children: <Widget>[
+
+                  NumberPicker.integer(
+                    initialValue: topTimeSignature,
+                    minValue: 2,
+                    maxValue: 12,
+                    onChanged: (value) => topToSet = value,
+                  ),
+
+                  Text('/'),
+
+                  NumberPicker.integer(
+                    initialValue: bottomTimeSignature,
+                    minValue: 2,
+                    maxValue: 8,
+                    onChanged: (value) => botToSet = value,
+                  )
+
+
+                ],
+              ),
+
+              actions: <Widget>[
+
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => setTimeSignature(topToSet, botToSet),
                 )
 
 
               ],
-            ),
 
-            actions: <Widget>[
+            );
+          }
+      );
+    }
 
-              FlatButton(
-                child: Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
-              ),
-
-              FlatButton(
-                child: Text('Ok'),
-                onPressed: () => setTimeSignature(topToSet, botToSet),
-              )
-
-
-            ],
-
-          );
-        }
-    );
 
   }
 
@@ -394,14 +436,14 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
   void togglePlayer() {
     print('toggle');
     setState(() {
-      isMetronomePlaying = isMetronomePlaying ? false : true;
+      isPlayerOn = isPlayerOn ? false : true;
       currentBeat = 0;
     });
 
-    if (isMetronomePlaying) { playPlayer(); }
+    if (isPlayerOn) { playPlayer(); }
     else { timer.cancel(); disableBeatDisplays(); }
   }
-  void playPlayer() { //lalapalooza
+  void playPlayer() {
     print('playMetronome');
     disableBeatDisplays();
     
@@ -414,110 +456,15 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     // play sound
     int midiSound = current.sound;
-    if (midiSound != -1 && beatDisplays[currentBeat].shorrBet) {
+    if (midiSound != -1) {
       FlutterMidi.playMidiNote(midi: midiSound);
     }
 
     // add to current beat
     currentBeat++;
-    if (currentBeat == topTimeSignature) { currentBeat = 0; }
+    if (currentBeat == beats.length) { currentBeat = 0; }
     timer = Timer(current.beatDuration, () => playPlayer());
 
-  }
-
-
-  Widget _buildButton(int val){
-    final button = Stack(
-      children: <Widget>[
-        Semantics(
-            button:true,
-            child: Material(
-                color: Colors.black,
-                child: InkWell(
-                  highlightColor: Colors.grey,
-                  onTap: (){
-                    if(val>0) {
-                      addBeat(Beat(val), true);
-                    }
-                    if(val==-4){
-                      _restSwitch(noteOrRest);
-                    }
-                    else if(val ==0){deleteBeat();}
-                    else{
-
-                    }
-                  },
-                ))),
-        Positioned(
-            left: 0.0,
-            right: 0.0,
-            bottom: 20.0,
-            child: Icon(findCon(val),color: Colors.white,),
-        ),
-      ],
-    );
-    return Container(
-        width: 100.0,
-        height:100.0,
-        child:button,
-        margin: EdgeInsets.symmetric(horizontal: 2.0,)
-    );
-  }
-
-  void _restSwitch(bool isNote){
-    if(isNote) {
-      setState(() {
-        noteOrRest = false;
-      });
-    }
-    else{
-      setState(() {
-        noteOrRest = true;
-      });
-    }
-  }
-
-  IconData findCon(int val){
-    int value = val;
-    if(!noteOrRest){
-      value = -val;
-    }
-    if(value == 16){
-      return IconData(0xe900, fontFamily: 'whole');
-    }
-    else if(value ==8){
-      return IconData(0xe900, fontFamily: 'half');
-    }
-    else if(value ==4){
-      return IconData(0xe900, fontFamily: 'quarter');
-    }
-    else if(value ==2){
-      return IconData(0xe900, fontFamily: 'eighth');
-    }
-    else if(value ==1){
-      return IconData(0xe900, fontFamily: 'sixteenth');
-    }
-    else if(value ==0){
-      return IconData(57674, fontFamily: 'MaterialIcons', matchTextDirection: true);
-    }
-    else if(value ==-8){
-      return IconData(0xe900, fontFamily: 'half_rest');
-    }
-    else if(value ==-4){
-      return IconData(0xe900, fontFamily: 'quarter_rest');
-    }
-    else if(value ==-2){
-      return IconData(0xe900, fontFamily: 'eighth_rest');
-    }
-    else if(value ==-1){
-      return IconData(0xe900, fontFamily: 'thirtysecond_rest');
-    }
-    else if(value ==-16){
-      return IconData(0xe900, fontFamily: 'whole_rest');
-    }
-    else{
-      return null;
-    }
   }
 
 }

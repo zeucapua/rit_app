@@ -21,15 +21,17 @@ class MetronomePageState extends State<MetronomePage> {
   Icon metronomeIcon;
 
   int currentBeat;
-  bool isMetronomePlaying;
+  bool isMetronomeOn;
 
   List<BeatDisplay> beatDisplays;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-
+      key: _scaffoldKey,
       body: Container(
         child: SafeArea(
 
@@ -86,7 +88,7 @@ class MetronomePageState extends State<MetronomePage> {
 
                   // play button
                   FlatButton(
-                    child: isMetronomePlaying ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+                    child: isMetronomeOn ? Icon(Icons.stop) : Icon(Icons.play_arrow),
                     onPressed: () => toggleMetronome(),
                   )
 
@@ -113,7 +115,7 @@ class MetronomePageState extends State<MetronomePage> {
 
     // initialize metronome settings
     currentBeat = 0;
-    isMetronomePlaying = false;
+    isMetronomeOn = false;
     timer = Timer(tempoDuration, () => print('init'));
 
     // initialize widgets
@@ -140,7 +142,6 @@ class MetronomePageState extends State<MetronomePage> {
   }
   void setTimeSignature(int topToSet, int botToSet) {
 
-    //TODO: change beatdisplays
     Navigator.pop(context);
 
     setState(() {
@@ -183,7 +184,7 @@ class MetronomePageState extends State<MetronomePage> {
     }
     for (int x = 0; x < topTimeSignature; x++) {
       setState(() {
-        beatDisplays.add(BeatDisplay(value,true));
+        beatDisplays.add(BeatDisplay(beat: Beat(value, false), key: UniqueKey(),));
       });
     }
   }
@@ -198,7 +199,7 @@ class MetronomePageState extends State<MetronomePage> {
     List<BeatDisplay> temp = [];
     for (int x = 0; x < topTimeSignature; x++) {
       setState(() {
-        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(value,true));
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(beat: Beat(value, false), key: UniqueKey()));
       });
     }
     beatDisplays.addAll(temp);
@@ -217,88 +218,107 @@ class MetronomePageState extends State<MetronomePage> {
   }
 
   void showTempoDialog() {
-    int toSet = tempo;
+    if (isMetronomeOn) {
+      final errorBar = SnackBar(
+        content: Text('Cannot change tempo while metronome is on!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
+    else {
+      int toSet = tempo;
 
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Set Tempo'),
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Set Tempo'),
 
-            content: NumberPicker.integer(
-              initialValue: tempo,
-              minValue: 30,
-              maxValue: 180,
-              onChanged: (value) => toSet = value,
-            ),
-
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
+              content: NumberPicker.integer(
+                initialValue: tempo,
+                minValue: 30,
+                maxValue: 180,
+                onChanged: (value) => toSet = value,
               ),
 
-              FlatButton(
-               child: Text('Ok'),
-                onPressed: () => setTempo(toSet),
-              )
-            ],
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
 
-          );
-        }
-    );
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => setTempo(toSet),
+                )
+              ],
+
+            );
+          }
+      );
+    }
+
   }
   void showTimeSignatureDialog() {
-    int topToSet = topTimeSignature;
-    int botToSet = bottomTimeSignature;
+    if (isMetronomeOn) {
+      final errorBar = SnackBar(
+        content: Text('Cannot change time signatures while metronome is on!'),
+        action: SnackBarAction(label: 'Okay', onPressed: () => {}),
+      );
+      _scaffoldKey.currentState.showSnackBar(errorBar);
+    }
+    else {
+      int topToSet = topTimeSignature;
+      int botToSet = bottomTimeSignature;
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
 
-          title: Text('Set Time Signature'),
-          content: Row(
-            children: <Widget>[
+              title: Text('Set Time Signature'),
+              content: Row(
+                children: <Widget>[
 
-              NumberPicker.integer(
-                initialValue: topTimeSignature,
-                minValue: 2,
-                maxValue: 12,
-                onChanged: (value) => topToSet = value,
+                  NumberPicker.integer(
+                    initialValue: topTimeSignature,
+                    minValue: 2,
+                    maxValue: 12,
+                    onChanged: (value) => topToSet = value,
+                  ),
+
+                  Text('/'),
+
+                  NumberPicker.integer(
+                    initialValue: bottomTimeSignature,
+                    minValue: 2,
+                    maxValue: 8,
+                    onChanged: (value) => botToSet = value,
+                  )
+
+
+                ],
               ),
 
-              Text('/'),
+              actions: <Widget>[
 
-              NumberPicker.integer(
-                initialValue: bottomTimeSignature,
-                minValue: 2,
-                maxValue: 8,
-                onChanged: (value) => botToSet = value,
-              )
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
 
-
-            ],
-          ),
-
-          actions: <Widget>[
-
-            FlatButton(
-              child: Text('Cancel'),
-              onPressed: () => Navigator.pop(context),
-            ),
-
-            FlatButton(
-              child: Text('Ok'),
-              onPressed: () => setTimeSignature(topToSet, botToSet),
-            )
+                FlatButton(
+                  child: Text('Ok'),
+                  onPressed: () => setTimeSignature(topToSet, botToSet),
+                )
 
 
-          ],
+              ],
 
-        );
-      }
-    );
+            );
+          }
+      );
+    }
 
   }
 
@@ -306,11 +326,11 @@ class MetronomePageState extends State<MetronomePage> {
   void toggleMetronome() {
     print('toggle');
     setState(() {
-      isMetronomePlaying = isMetronomePlaying ? false : true;
+      isMetronomeOn = isMetronomeOn ? false : true;
       currentBeat = 0;
     });
 
-    if (isMetronomePlaying) { playMetronome(); }
+    if (isMetronomeOn) { playMetronome(); }
     else { timer.cancel(); disableBeatDisplays(); }
   }
   void playMetronome()  {
