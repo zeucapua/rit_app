@@ -157,14 +157,14 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     // initialize inputs
     isInputtingRests = false;
     topBeatInputs = [
-      BeatInput(16, isInputtingRests, () => addBeat(Beat(16), isInputtingRests)),
-      BeatInput(8, isInputtingRests, () => addBeat(Beat(8), isInputtingRests)),
-      BeatInput(4, isInputtingRests, () => addBeat(Beat(4), isInputtingRests)),
+      BeatInput(16, isInputtingRests, () => addBeat(Beat(16, isInputtingRests))),
+      BeatInput(8, isInputtingRests, () => addBeat(Beat(8, isInputtingRests))),
+      BeatInput(4, isInputtingRests, () => addBeat(Beat(4, isInputtingRests))),
     ];
     bottomBeatInputs = [
-      BeatInput(2, isInputtingRests, () => addBeat(Beat(2), isInputtingRests)),
-      BeatInput(1, isInputtingRests, () => addBeat(Beat(1), isInputtingRests)),
-      BeatInput(-1, isInputtingRests, () => addBeat(Beat(-1), isInputtingRests)),
+      BeatInput(2, isInputtingRests, () => addBeat(Beat(2, isInputtingRests))),
+      BeatInput(1, isInputtingRests, () => addBeat(Beat(1, isInputtingRests))),
+      BeatInput(-1, isInputtingRests, () => addBeat(Beat(-1, isInputtingRests))),
     ];
 
     // initialize beats and displays
@@ -217,7 +217,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     bool isAddingDotted = false;
 
     if (toAdd.value == -1) {
-      int lastBeatValue = beats.last.value;
+      int lastBeatValue = beats.last != null ? beats.last.value : -1;
       int dottedToAdd = 0;
       switch (lastBeatValue) {
         case 16: dottedToAdd = 24; break;
@@ -225,7 +225,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
         case 4: dottedToAdd = 6; break;
         case 2: dottedToAdd = 3; break;
         case 1: dottedToAdd = -1; break;
-        default: dottedToAdd = 6; break;
+        default: dottedToAdd = -1; break;
       }
 
       toAdd.setValue(dottedToAdd);
@@ -234,7 +234,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     if (toAdd.value == -1) {
       final errorBar = SnackBar(
-        content: Text('Cannot do a dotted sixteenth!'),
+        content: Text('Error: cannot add a dotted note!'),
         action: SnackBarAction(label: 'Okay', onPressed: () => {}),
       );
       _scaffoldKey.currentState.showSnackBar(errorBar);
@@ -247,8 +247,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
       _scaffoldKey.currentState.showSnackBar(errorBar);
     }
     else {
-      if (isRest) { toAdd.setSound(-1); }
-      else { toAdd.setSound(60); }
 
       toAdd.setBeatDuration(bottomTimeSignature, tempoDuration);
 
@@ -259,7 +257,8 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
       }
       setState(() {
         beats.add(toAdd);
-        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(toAdd.value, isRest));
+        beatDisplays = List.from(beatDisplays)..add(BeatDisplay(beat: toAdd, key: UniqueKey()));
+        setBeatsDurations();
       });
 
     }

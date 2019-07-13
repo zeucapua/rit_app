@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_midi/flutter_midi.dart';
 
+import 'package:rit_app/models/Beat.dart';
 import 'package:rit_app/models/BeatDisplay.dart';
 import 'package:rit_app/models/Constants.dart';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rit_app/models/Beat.dart';
 import 'package:rit_app/models/Constants.dart';
 
 class BeatDisplay extends StatefulWidget {
@@ -7,7 +8,7 @@ class BeatDisplay extends StatefulWidget {
   BeatDisplayState state;
 
   // constructor
-  BeatDisplay(int value, bool isRest) { state = BeatDisplayState(value, isRest); }
+  BeatDisplay({Beat beat, Key key}) : super(key: key) { state = BeatDisplayState(beat); }
   @override BeatDisplayState createState() => state;
 
   // methods for pages to use
@@ -18,49 +19,48 @@ class BeatDisplay extends StatefulWidget {
 class BeatDisplayState extends State<BeatDisplay> {
 
   // instance variables
-  int value;
+  Beat beat;
   bool isOn;
   Icon icon;
-  bool isRest;
 
   // constructor
-  BeatDisplayState(this.value, this.isRest) { isOn = false; }
+  BeatDisplayState(this.beat) { isOn = false; }
 
   // build
   @override
   Widget build(BuildContext context) {
-    switch (value) {
+    switch (beat.value) {
       case 16:
         icon = Icon(
-            isRest ? Constants.wholeRest : Constants.whole,
+            beat.isRest ? Constants.wholeRest : Constants.whole,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         );
         break;
       case 8:
         icon = Icon(
-            isRest ? Constants.halfRest : Constants.half,
+            beat.isRest ? Constants.halfRest : Constants.half,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         );
         break;
       case 4:
         icon = Icon(
-            isRest ? Constants.quarterRest : Constants.quarter,
+            beat.isRest ? Constants.quarterRest : Constants.quarter,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         );
         break;
       case 2:
         icon = Icon(
-            isRest ? Constants.eighthRest : Constants.eighth,
+            beat.isRest ? Constants.eighthRest : Constants.eighth,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         );
         break;
       case 1:
         icon = Icon(
-            isRest ? Constants.sixteenthRest : Constants.sixteenth,
+            beat.isRest ? Constants.sixteenthRest : Constants.sixteenth,
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         );
@@ -76,6 +76,6 @@ class BeatDisplayState extends State<BeatDisplay> {
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.debug}) {
     // TODO: implement toString
-    return value.toString();
+    return beat.value.toString();
   }
 }
