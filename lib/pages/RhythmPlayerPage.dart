@@ -148,7 +148,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
         ),
       ),
 
-      //floatingActionButton: FloatingActionButton(onPressed: () => addBeat(Beat(4), true)),
 
     );
 
@@ -229,9 +228,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
 
     // check if able to add onto bar based on time signature
     int timeSignatureSum = topTimeSignature * bottomTimeSignature;
-    int beatsSum = 0;
-    beats.forEach((beat) => beatsSum += beat.value);
-
     bool isAddingDotted = false;
 
     // changes the last beat in the current 'beats' list to a dotted equivalent
@@ -239,17 +235,22 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
       int lastBeatValue = beats.last != null ? beats.last.value : -1;
       int dottedToAdd = 0;
       switch (lastBeatValue) {
-        case 16: dottedToAdd = 24; break;
+        //case 16: dottedToAdd = 24; break; TODO: add once icons are in
         case 8: dottedToAdd = 12; break;
         case 4: dottedToAdd = 6; break;
         case 2: dottedToAdd = 3; break;
-        case 1: dottedToAdd = -1; break;
+        //case 1: dottedToAdd = -1; break; TODO: add once icons are in
         default: dottedToAdd = -1; break;
       }
 
       toAdd.setValue(dottedToAdd);
       isAddingDotted = true;
     }
+
+    int beatsSum = 0;
+    List<Beat> temp = List<Beat>(); temp.addAll(beats);
+    if (isAddingDotted) { temp.removeLast(); }
+    temp.forEach((beat) => beatsSum += beat.value);
 
     if (toAdd.value == -1) {
       final errorBar = SnackBar(
@@ -321,7 +322,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     initBeatDisplays();
   }
   void disableBeatDisplays() {
-    print('disable');
     setState(() {
       beatDisplays.forEach((display) => display.setIsOn(false));
     });
@@ -444,7 +444,6 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
     else { timer.cancel(); disableBeatDisplays(); }
   }
   void playPlayer() {
-    print('playMetronome');
     disableBeatDisplays();
     
     Beat current = beats[currentBeat];

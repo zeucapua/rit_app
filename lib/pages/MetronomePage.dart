@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async'; import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_midi/flutter_midi.dart';
 

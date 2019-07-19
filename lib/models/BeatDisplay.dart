@@ -37,6 +37,13 @@ class BeatDisplayState extends State<BeatDisplay> {
             size: Constants.BEATDISPLAY_SIZE
         );
         break;
+      case 12:
+        icon = Icon(
+            beat.isRest ? Constants.halfRest : Constants.halfDotted, // TODO: change rest to dotted equivalent
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
       case 8:
         icon = Icon(
             beat.isRest ? Constants.halfRest : Constants.half,
@@ -44,9 +51,23 @@ class BeatDisplayState extends State<BeatDisplay> {
             size: Constants.BEATDISPLAY_SIZE
         );
         break;
+      case 6:
+        icon = Icon(
+            beat.isRest ? Constants.quarterRest : Constants.quarterDotted, // TODO: change rest to dotted equivalent
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
       case 4:
         icon = Icon(
             beat.isRest ? Constants.quarterRest : Constants.quarter,
+            color: isOn ? Colors.blue : Colors.black,
+            size: Constants.BEATDISPLAY_SIZE
+        );
+        break;
+      case 3:
+        icon = Icon(
+            beat.isRest ? Constants.eighthRest : Constants.eighthDotted, // TODO: change rest to dotted equivalent
             color: isOn ? Colors.blue : Colors.black,
             size: Constants.BEATDISPLAY_SIZE
         );

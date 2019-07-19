@@ -43,7 +43,7 @@ flutter:
     - assets/sounds/Steinway+Grand+Piano+ER3A.sf2
 
   fonts:
-    - family: whole
+    - family: whole # BASE NOTES
       fonts:
         - asset: assets/fonts/ic_whole.ttf
     - family: half
@@ -58,7 +58,7 @@ flutter:
     - family: sixteenth
       fonts:
         - asset: assets/fonts/ic_sixteenth.ttf
-    - family: whole_rest
+    - family: whole_rest # BASE RESTS
       fonts:
         - asset: assets/fonts/ic_whole_rest.ttf
     - family: half_rest
@@ -73,3 +73,12 @@ flutter:
     - family: thirtysecond_rest
       fonts:
       - asset: assets/fonts/ic_thirtysecond_rest.ttf
+    - family: half_dotted # DOTTED NOTES
+      fonts:
+        - asset: assets/fonts/ic_half_dotted.ttf
+    - family: quarter_dotted
+      fonts:
+        - asset: assets/fonts/ic_quarter_dotted.ttf
+    - family: eighth_dotted
+      fonts:
+        - asset: assets/fonts/ic_eighth_dotted.ttf
