@@ -402,6 +402,7 @@ class RhythmPlayerPageState extends State<RhythmPlayerPage> {
                     initialValue: bottomTimeSignature,
                     minValue: 2,
                     maxValue: 8,
+                    step: 2,
                     onChanged: (value) => botToSet = value,
                   )
 
